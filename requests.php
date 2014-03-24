@@ -1,6 +1,6 @@
 <?php
 	require_once("connect.php");
-	require_once("5.5PasswordFix/fix.php");
+	//require_once("5.5PasswordFix/fix.php");
 	session_start();
 
 	$errorMsg = "";
@@ -54,19 +54,58 @@
 			{
 				if(password_verify($_POST["password"], $result[0]["password"]))
 				{
-					$errorMsg .= "<p>Logged in</php>";
-
 					$_SESSION["username"] = $_POST["username"];
+					$_SESSION["userID"] = $result[0]["ID"];
+
+					echo("logged in sucessfully");
+
+					exit();
 				}
 				else
 				{
-					$errorMsg .= "<p>Uername or password is wrong</p>";
+					$errorMsg .= "ERROR:Uername or password is wrong";
 				}
 			}
 			else
 			{
-				$errorMsg .= "<p>Username or password is wrong</p>";
+				$errorMsg .= "ERROR:Username or password is wrong";
 			}
+		}
+		if($_POST["action"] == "addScore") //Adding a score
+		{
+			if(isset($_SESSION["userID"]))
+			{
+				$exerciseID = 1;
+				$userID = $_SESSION["userID"];
+
+				$dbo = getDbh();
+
+				//Getting the parameters
+				$sqlRequest = "INSERT INTO `result`(`date`, `userID`, `exerciseID`, `param1`, `param2`, `param3`, `param4`)
+					 VALUES (CURRENT_TIMESTAMP, :userID, :exerciseID, :param1, :param2, :param3, :parma4)";
+
+				$stmt = $dbo->prepare($sqlRequest);
+				$stmt->bindParam(":userID", $userID);
+				$stmt->bindParam("exerciseID", $exerciseID);
+				$stmt->bindParam(":param1", $_POST["param1"]);
+				$stmt->bindParam(":param2", $_POST["param2"]);
+				$stmt->bindParam(":param3", $_POST["param3"]);
+				$stmt->bindParam(":param4", $_POST["param4"]);
+
+				$stmt->execute();
+
+				echo("Adding score");
+			}
+			else
+			{
+				$errorMsg .="ERROR:Failed to add score, user is not logged in";
+			}
+		}
+		if($_POST["action"] == "ping")
+		{
+			echo "pong";
+
+			exit();
 		}
 	}
 

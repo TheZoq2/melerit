@@ -1,11 +1,11 @@
 <?php
 	require_once("connect.php");
-	require_once("5.5PasswordFix/fix.php");
+	//require_once("5.5PasswordFix/fix.php");
 	session_start();
 
     $errorMsg = "";
 
-	if(isset($_SESSION["username"]))
+	if(isset($_SESSION["username"]) && isset($_SESSION["userID"]))
     {
         header("location:index.php");
     }
