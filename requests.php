@@ -1,7 +1,18 @@
 <?php
 	require_once("connect.php");
-	//require_once("5.5PasswordFix/fix.php");
+	require_once("5.5PasswordFix/fix.php");
+
+	require_once("data.php");
 	session_start();
+
+	class ResultPrototype
+	{
+		__construct($name, $value, $passed);
+
+		private $name;
+		private $value;
+		private $passed;
+	}
 
 	$errorMsg = "";
 
@@ -82,11 +93,11 @@
 
 				//Getting the parameters
 				$sqlRequest = "INSERT INTO `result`(`date`, `userID`, `exerciseID`, `param1`, `param2`, `param3`, `param4`)
-					 VALUES (CURRENT_TIMESTAMP, :userID, :exerciseID, :param1, :param2, :param3, :parma4)";
+					 VALUES (CURRENT_TIMESTAMP, :userID, :exerciseID, :param1, :param2, :param3, :param4)";
 
 				$stmt = $dbo->prepare($sqlRequest);
 				$stmt->bindParam(":userID", $userID);
-				$stmt->bindParam("exerciseID", $exerciseID);
+				$stmt->bindParam(":exerciseID", $exerciseID);
 				$stmt->bindParam(":param1", $_POST["param1"]);
 				$stmt->bindParam(":param2", $_POST["param2"]);
 				$stmt->bindParam(":param3", $_POST["param3"]);
@@ -99,6 +110,45 @@
 			else
 			{
 				$errorMsg .="ERROR:Failed to add score, user is not logged in";
+			}
+		}
+		if($_POST["action"] = "getUserScore")
+		{
+			$resultArray = array(); //The array that will be returned when everything is doen
+			$sqlRequest = "SELECT * FROM `result`
+				 WHERE userID=:userID";
+
+			$userID = $_SESSION["userID"];
+
+			//Requesting the results from the database
+			$dbo = getDBH();
+			$stmt = $dbo->prepare($sqlRequest);
+			$stmt->bindParam(":userID", $userID);
+
+			$stmt->execute();
+			$results = $stmt->fetchAll();
+
+			foreach($results as $result)
+			{
+				//fetching the exercise that the results were sent fo
+				$sqlRequest = "SELECT * FROM `parameter` WHERE `exerciseID`=:exID";
+
+				$stmt = $dbo->prepare($sqlRequest);
+				$stmt->bindParam(":exID", $result["exerciseID"]);
+
+				$stmt->execute();
+
+				$exercise = $stmt->fetchAll();
+
+				//Looping thru all the parameters
+				for($i = 0; $i < count($parameters); $i++)
+				{
+					//Comparing the value to the coal
+					for($n = 0; $n < count($exercise); $n++)
+					{
+						
+					}
+				}
 			}
 		}
 		if($_POST["action"] == "ping")
