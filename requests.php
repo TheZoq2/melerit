@@ -5,13 +5,67 @@
 	require_once("data.php");
 	session_start();
 
-	class ResultPrototype
+	class ParamPrototype
 	{
-		__construct($name, $value, $passed);
+		function __construct($name, $value, $passed)
+		{
+			$this->name = $name;
+			$this->value = $value;
+			$this->passed = $passed;
+		}
 
+		public function getValue()
+		{
+			return $this->value;
+		}
+		public function getPassed()
+		{
+			return $this->passed;
+		}
 		private $name;
 		private $value;
 		private $passed;
+	}
+	class ResultPrototype
+	{
+		function __construct()
+		{
+			$params = array();
+		}
+
+		function addParam($param)
+		{
+			$this->params[] = $param;
+		}
+
+		function getTable()
+		{
+			global $htmlData;
+
+			$result = "<tr>";
+			foreach($this->params as $param)
+			{
+				$class = $htmlData->getFailedClass();
+				if($param->getPassed() == 1)
+				{
+					$class = $htmlData->getPassedClass();
+				}
+				if($param->getPassed() == 2)
+				{
+					$class = $htmlData->getOkClass();
+				}
+
+				$result .= 
+				"<td class='" . $class . "'>" . 
+				$param->getValue() .
+				"</td>";
+
+			}
+			$result .= "</tr>";
+
+			return $result;
+		}
+		private $params;
 	}
 
 	$errorMsg = "";
@@ -49,6 +103,9 @@
 			{
 				$errorMsg .= "<p>Username already exists</p>";
 			}
+
+			header("location:index.php");
+			exit();
 		}
 		if($_POST["action"] == "Login")
 		{
@@ -67,9 +124,11 @@
 				{
 					$_SESSION["username"] = $_POST["username"];
 					$_SESSION["userID"] = $result[0]["ID"];
+					$_SESSION["userRole"] = $result[0]["role"];
 
 					echo("logged in sucessfully");
 
+					header("location:index.php");
 					exit();
 				}
 				else
@@ -81,6 +140,9 @@
 			{
 				$errorMsg .= "ERROR:Username or password is wrong";
 			}
+
+			header("location:index.php");
+			exit();
 		}
 		if($_POST["action"] == "addScore") //Adding a score
 		{
@@ -109,10 +171,12 @@
 			}
 			else
 			{
-				$errorMsg .="ERROR:Failed to add score, user is not logged in";
+				$errorMsg .= "ERROR:Failed to add score, user is not logged in";
 			}
+
+			exit();
 		}
-		if($_POST["action"] = "getUserScore")
+		if($_POST["action"] == "getUserScore")
 		{
 			$resultArray = array(); //The array that will be returned when everything is doen
 			$sqlRequest = "SELECT * FROM `result`
@@ -128,28 +192,56 @@
 			$stmt->execute();
 			$results = $stmt->fetchAll();
 
+			$resultDisp = array();
 			foreach($results as $result)
 			{
-				//fetching the exercise that the results were sent fo
-				$sqlRequest = "SELECT * FROM `parameter` WHERE `exerciseID`=:exID";
+				//Selecting the exercise
+				$sqlRequest = "SELECT * FROM `exercise` WHERE `ID`=:exID";
 
 				$stmt = $dbo->prepare($sqlRequest);
 				$stmt->bindParam(":exID", $result["exerciseID"]);
-
 				$stmt->execute();
+				$exercise = $stmt->fetch();
 
-				$exercise = $stmt->fetchAll();
+				$resultProt = new ResultPrototype();
 
 				//Looping thru all the parameters
 				for($i = 0; $i < count($parameters); $i++)
 				{
-					//Comparing the value to the coal
-					for($n = 0; $n < count($exercise); $n++)
+					//Getting the para
+					$sqlRequest = "SELECT * FROM `parameter` WHERE `ID`=:param";
+					$paramID = $exercise[$parameters[$i]->getDbName()];
+					$stmt = $dbo->prepare($sqlRequest);
+					$stmt->bindParam(":param", $paramID);
+					$stmt->execute();
+
+					$param = $stmt->fetch();
+
+					//Comparing the result to the parameter
+					$passed = 0;
+					if($result[$parameters[$i]->getDbName()] > $param["minVal"] && $result[$parameters[$i]->getDbName()] < $param["maxVal"])
 					{
-						
+						$passed = 1;
 					}
+					elseif($result[$parameters[$i]->getDbName()] > $param["minValOK"] && $result[$parameters[$i]->getDbName()] < $param["maxValOK"])
+					{
+						$passed = 2;
+					}
+
+					$paramProt = new ParamPrototype($parameters[$i]->getName(), $result[$parameters[$i]->getDbName()], $passed);
+
+					$resultProt->addParam($paramProt);
 				}
+
+				$resultDisp[] = $resultProt;
 			}
+
+			for($i = 0; $i < count($resultDisp); $i++)
+			{
+				echo $resultDisp[$i]->getTable();
+			}
+
+			exit();
 		}
 		if($_POST["action"] == "ping")
 		{
@@ -157,7 +249,156 @@
 
 			exit();
 		}
+		if($_POST["action"] == "logout")
+		{
+			unset($_SESSION["username"]);
+			unset($_SESSION["userID"]);
+			unset($_SESSION["userRole"]);
+
+			header("location:index.php");
+		}
+		if($_POST["action"] == "addCourse")
+		{
+			$dbo = getDbh();
+			//Checking if the times are goood
+			$startTime = strtotime($_POST["startDate"]);
+			$endTime = strtotime($_POST["endDate"]);
+
+			$paramsValid = true;
+			//Making sure the course doesn't start in the past
+			if(!is_numeric($startTime))
+			{
+				$paramsValid = false;
+				echo("Error: Starttime is not a valid time");
+			}
+			if(!is_numeric($endTime))
+			{
+				$paramsValid = false;
+				echo("Error: Endtime is not a valid time");
+			}
+
+			if($paramsValid == true)
+			{
+				//Filtering input
+				$name = htmlspecialchars($_POST["name"]);
+
+				$sqlRequest =
+				"INSERT INTO `course`(`name`, `startDate`, `endDate`)" . 
+					" VALUES (:name, :startDate, :endDate);";
+
+				$stmt = $dbo->prepare($sqlRequest);
+				$stmt->bindParam(":name", $name);
+				$stmt->bindParam(":startDate", $startTime);
+				$stmt->bindParam(":endDate", $endTime);
+
+				$stmt->execute();
+
+				//Fetching the last ID created
+				$sqlRequest = "SELECT MAX(`ID`) AS createdID FROM `course`";
+				$stmt = $dbo->prepare($sqlRequest);
+				$stmt->execute();
+				$result = $stmt->fetch();
+
+				//Adding the the user to the coure
+				addUserToCourse($_SESSION["userID"], $result["createdID"]);
+
+				echo("Course added");
+			}
+		}
+		if($_POST["action"] == "getCourses")
+		{
+			handleGetCourse();
+		}
+		if($_POST["action"] == "addUsers")
+		{
+			handleAddMembers();
+		}
 	}
 
 	echo $errorMsg;
+
+	function addUserToCourse($userID, $courseID)
+	{
+		$sqlRequest = "INSERT INTO `coursemember`(`userID`, `courseID`) VALUES (:userID, :courseID)";
+
+		$dbo = getDbh();
+
+		$stmt = $dbo->prepare($sqlRequest);
+
+		$stmt->bindParam(":userID", $userID);
+		$stmt->bindParam(":courseID", $courseID);
+
+		$stmt->execute();
+	}
+
+	function handleGetCourse()
+	{
+		if(isset($_SESSION["userID"]) == false)
+		{
+			echo("User is not logged in");
+			return;
+		}
+		//SQL to fetch all the courses that the user is part of
+		$sqlRequest = "SELECT *
+			FROM `course` , `coursemember`
+			WHERE `coursemember`.userID=:userID
+			AND `coursemember`.courseID = `course`.ID";
+
+		$dbo = getDbh();
+		$stmt = $dbo->prepare($sqlRequest);
+		$stmt->bindParam(":userID", $_SESSION["userID"]);
+		$stmt->execute();
+
+		$result = $stmt->fetchAll();
+
+		//Creating a table for the result
+		$table = 
+		"<tr>" .
+			"<td>Name</td>" .
+			"<td>Start date</td>" .
+			"<td>End date</td>";
+
+		//if the user is an admin
+		if($_SESSION["userRole"] == 1)
+		{
+			$table .= 
+			"<td>Add members</td>";
+		}
+
+		foreach($result as $course)
+		{
+			//Converting the dates to a readable format
+			$startDate = gmdate("Y-m-d", $course["startDate"]);
+			$endDate = gmdate("Y-m-d", $course["endDate"]);
+
+			$table .= 
+			"<tr>" .
+				"<td>" . $course["name"] . "</td>" .
+				"<td>" . $startDate . "</td>" .
+				"<td>" . $endDate . "</td>" .
+				"<td><a href='manage.php?id=" . $course["courseID"] . "&action=editCourse'>add</a>"; 
+			"</tr>";
+		}
+
+		$table .= "</table>";
+
+		echo($table);
+	}
+
+	function handleAddMembers()
+	{
+		//Db connection
+		$dbo = getDbh();
+
+		//Splitting the string
+		$users = explode(",", $_POST["users"]);
+
+		array_pop($users);
+
+		foreach($users as $user)
+		{
+			//Adding the user to the course
+			$sqlRequest = "INSERT INTO "
+		}
+	}
 ?>

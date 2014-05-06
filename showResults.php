@@ -15,18 +15,30 @@
 
 	<script src="js/requests.js"></script>
 	<script src="js/showResults.js"></script>
+	<script src="js/graph.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/html5reset-1.6.1.css">
 </head>
 <body>
-	<h1>Results</h1>
+	<div id="wrapper">
+		<h1>Results</h1>
 
-	<div id="resutDiv">
-		<table id="resultTable">
+		<div id="resultDiv">
+			<table id="resultTable">
 
-		</table>
+			</table>
+		</div>
+
+		<div id="canvasContainer">
+			<canvas id="c_graph1" width="150" height="200"></canvas>
+		</div>
+
+		<script>
+			getResults();
+
+			setupGraph("c_graph1");
+		</script>
 	</div>
-
-	<script>
-		getResults();
-	</script>
 </body>
 </html>

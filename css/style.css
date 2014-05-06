@@ -1,0 +1,29 @@
+#wrapper
+{
+	width: 960px;
+
+	margin:0px auto;
+}
+/*/////////////////////////////////////////////////////////////////////////*/
+#resultTable tr td
+{
+	min-width: 100px;
+
+	padding:3px;
+	border:1px solid #000;
+}
+
+.resultFailed
+{
+	background-color: #CC5555;
+}
+
+.resultOk
+{
+	background-color: #cccc00;
+}
+
+.resultPassed
+{
+	background-color: #00aa00;
+}

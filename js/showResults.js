@@ -1,7 +1,9 @@
 function getResults()
 {
 	createRequest("requests.php", "action=getUserScore", function(result){
-		addResultsToTable("resutDiv", result);
+		addResultsToTable("resultTable", result);
+
+		console.log(result);
 	});
 }
 

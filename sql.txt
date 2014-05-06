@@ -1,0 +1,4 @@
+@test := (SELECT DISTINCT `users`.ID 
+FROM `users` 
+LEFT OUTER JOIN `coursemember` ON `coursemember`.userID=`users`.ID
+WHERE `coursemember`.`courseID`=0)
