@@ -28,7 +28,7 @@ function setupManage()
 				postString = postString + checkboxes[i].value + ",";
 			}
 		}
-		postString = postString + ""
+		postString = postString + "&courseID=" + courseID;
 
 		createRequest("requests.php", postString, manageAddUsers);
 	}

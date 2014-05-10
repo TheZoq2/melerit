@@ -27,7 +27,7 @@
 				"<input type='text' name='name' value='" . $course["name"] . "'>" .
 				"<input type='text' name='startDate' value='" . $startDate . "'>" .
 				"<input type='text' name='endDate' value='" . $endDate . "'>" .
-				"<input type='hidden' name='courseID, value='" . $course["ID"] . "' id='courseID'>".
+				"<input type='hidden' name='courseID' value='" . $course["ID"] . "' id='courseID'>".
 			"</form>";
 
 			//Ading members

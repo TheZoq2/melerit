@@ -1,6 +1,6 @@
 <?php
 	require_once("connect.php");
-	require_once("5.5PasswordFix/fix.php");
+	//require_once("5.5PasswordFix/fix.php");
 
 	require_once("data.php");
 	session_start();
@@ -398,7 +398,15 @@
 		foreach($users as $user)
 		{
 			//Adding the user to the course
-			$sqlRequest = "INSERT INTO "
+			//$sqlRequest = "INSERT INTO `usercourse`(`courseID`, `exerciseID`) VALUES (:course,:user)";
+			$sqlRequest = "INSERT INTO `coursemember`(`courseID`, `userID`) VALUES (:course,:user)";
+
+			$stmt = $dbo->prepare($sqlRequest);
+			$stmt->bindParam(":course", $_POST["courseID"]);
+			$stmt->bindParam(":user", intval($user));
+			$stmt->execute();
+
+			echo("added users");
 		}
 	}
 ?>
