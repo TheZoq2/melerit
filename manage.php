@@ -1,5 +1,6 @@
 <?php
 	require_once("connect.php");
+	require_once("data.php");
 	$dbo = getDbh();
 
 	//<todo> Chec user
@@ -92,6 +93,53 @@
 			$content .=
 			"</table>" .
 			"<button id='submitMembers'>Add members</button>";
+
+			//Showing all the current members
+			$sqlRequest = 
+			"SELECT users.name 
+				FROM coursemember, users 
+				WHERE users.ID=`userID`AND courseID=:courseID";
+
+			$stmt = $dbo->prepare($sqlRequest);
+			$stmt->bindParam(":courseID", $_GET["id"]);
+			$stmt->execute();
+			$result = $stmt->fetchAll();
+
+			$content .= "<ul>";
+			foreach($result as $member)
+			{
+				$content .= "<li>" . $member["name"] . "</li>";
+			}
+			$content .= "</ul>";
+
+
+			/* Exercise area */
+			$exerciseArea = "" .
+
+			//Adding a completley new exercise
+			"<h3>Create new exercise</h3>" .
+
+			"<form id='exerciseForm'>";
+
+			//Looping thru all the parameters that exist
+			foreach($parameters as $param)
+			{
+				$exerciseArea .= 
+				"<p>" . $param->getName() . "</p>" . 
+				"<label>Min value</label>" . 
+				"<input type='text' name='" . $param->getDbName() . "_min' value='0'>" .
+				"<label>Max value</label>" . 
+				"<input type='text' name='" . $param->getDbName() . "_max' value='0'>" .
+				"<label>Min ok value</label>" . 
+				"<input type='text' name='" . $param->getDbName() . "_minOk' value='0'>" .
+				"<label>Max ok value</label>" . 
+				"<input type='text' name='" . $param->getDbName() . "_maxOK' value='0'>";
+			}
+
+			$exerciseArea .= 
+			"</form>" .
+			"<button id='b_addExercise'>Add exercise</button>";
+
  		}
 	}
 	else
@@ -110,6 +158,8 @@
 <body>
 	<?php
 		echo($content);
+
+		echo($exerciseArea);
 	?>
 
 	<script>
