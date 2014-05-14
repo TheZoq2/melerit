@@ -84,4 +84,37 @@
 			return $result;
 		}
 	}
+
+	class ParamBase()
+	{
+		function __construct($minVal, $maxVal, $minValOK, $maxValOK)
+		{
+			$this->minVal = $minVal;
+			$this->maxVal = $maxVal;
+			$this->minValOk = $minValOk;
+			$this->maxValOk = $maxValOk;
+		}
+
+		function getMinVal()
+		{
+			return $this->minVal;
+		}
+		function getMaxVal()
+		{
+			return $this->maxVal;
+		}
+		function getMinValOk()
+		{
+			return $this->minValOk;
+		}
+		function getMaxValOk()
+		{
+			return $this->maxValOk;
+		}
+
+		private $minVal;
+		private $maxVal;
+		private $minValOK;
+		private $maxValOK;
+	}
 ?>

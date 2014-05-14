@@ -48,7 +48,7 @@ function sendAddExercise()
 {
 	var form = document.getElementById("exerciseForm");
 
-	var request = "action=addExercise&";
+	var request = "action=addNewExercise&";
 
 	for(var i = 0; i < form.childNodes.length; i++)
 	{

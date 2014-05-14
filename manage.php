@@ -133,7 +133,7 @@
 				"<label>Min ok value</label>" . 
 				"<input type='text' name='" . $param->getDbName() . "_minOk' value='0'>" .
 				"<label>Max ok value</label>" . 
-				"<input type='text' name='" . $param->getDbName() . "_maxOK' value='0'>";
+				"<input type='text' name='" . $param->getDbName() . "_maxOk' value='0'>";
 			}
 
 			$exerciseArea .= 
