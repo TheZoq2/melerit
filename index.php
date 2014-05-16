@@ -46,22 +46,6 @@
 	<script src="js/datepickr/datepickr.js"></script>
 </head>
 <body>
-	<h1>Submit result</h1>
-
-	<form ID="addResultForm" action="requests.php" method="POST">
-		<label>Parameter 1</label><input type="text" name="param1">
-		<label>Parameter 2</label><input type="text" name="param2">
-		<label>Parameter 3</label><input type="text" name="param3">
-		<label>Parameter 4</label><input type="text" name="param4">
-
-		<input type="submit">
-
-		<input type="hidden" name="action" value="addScore">
-	</form>
-
-	<a href="createExercise.php">Add a new exercise</a>
-	<a href="showResults.php">Show previous results</a>
-
 	<form method="POST" action="requests.php"> 
 		<input type="hidden" name="action" value="logout">
 		<input type="submit" value="Log out">

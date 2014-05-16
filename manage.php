@@ -119,7 +119,13 @@
 			//Adding a completley new exercise
 			"<h3>Create new exercise</h3>" .
 
-			"<form id='exerciseForm'>";
+			"<form id='exerciseForm'>" .
+				"<label>Name: </label>" .
+				"<input name='name' type='text'></input>" .
+				"<label>Start date: </label>" .
+				"<input name='startDate' id='i_startDate' type='text'</input>" .
+				"<label>End date: </label>" .
+				"<input name='endDate' id='i_endDate' type='text'></input>";
 
 			//Looping thru all the parameters that exist
 			foreach($parameters as $param)
@@ -154,6 +160,8 @@
 
 	<script src="js/manage.js"></script>
 	<script src="js/requests.js"></script>
+	<script src="js/datepickr/datepickr.js"></script>
+	<script src="js/functions.js"></script>
 </head>
 <body>
 	<?php

@@ -418,52 +418,129 @@
 		global $parameters;
 		if($_SESSION["userRole"] == 1)
 		{
-			$dbo = getDbh();
+			//Converting the time to a timestamp
+			//Checking if the times are goood
+			$startTime = strtotime($_POST["startDate"]);
+			$endTime = strtotime($_POST["endDate"]);
 
-			//array containing all the newly created parameters
-			$createdParams = array();			
-
-			//Getting the parameter data
-			foreach($parameters as $paramData)
+			$paramsValid = true;
+			//Making sure the course doesn't start in the past
+			if(!is_numeric($startTime))
 			{
-				$minVal = 0;
-				$maxVal = 0;
-				$minValOk = 0;
-				$maxValOk = 0;
+				$paramsValid = false;
+				echo("Error: Starttime is not a valid time");
+			}
+			if(!is_numeric($endTime))
+			{
+				$paramsValid = false;
+				echo("Error: Endtime is not a valid time");
+			}
 
-				//Getting the values from the post request
-				$minVal = $_POST[$paramData->getDbName() . '_min'];
-				$maxVal = $_POST[$paramData->getDbName() . '_max'];
-				$minValOk = $_POST[$paramData->getDbName() . '_maxOk'];
-				$maxValOk = $_POST[$paramData->getDbName() . '_minOk'];
+			if($paramsValid == true)
+			{
+				$dbo = getDbh();
 
-				//Creating a param in the database
-				$sqlRequest = 
-					"INSERT INTO `param`(`minVal`, `maxVal`, `minValOk`, `maxValOk`) 
-					VALUES (':min', ':max', ':minOk', ':maxOk')";
+				//array containing all the newly created parameters
+				$createdParams = array();			
 
-				$stmt = $dbo->prepare($sqlRequest);;
-				$stmt->bindParam(":min", $minVal);
-				$stmt->bindParam(":max", $maxVal);
-				$stmt->bindParam(":minOk", $minValOk);
-				$stmt->bindParam(":minOk", $maxValOk);
+				//Getting the parameter data
+				foreach($parameters as $paramData)
+				{
+					$minVal = 0;
+					$maxVal = 0;
+					$minValOk = 0;
+					$maxValOk = 0;
+
+					//Getting the values from the post request
+					$minVal = $_POST[$paramData->getDbName() . '_min'];
+					$maxVal = $_POST[$paramData->getDbName() . '_max'];
+					$minValOk = $_POST[$paramData->getDbName() . '_maxOk'];
+					$maxValOk = $_POST[$paramData->getDbName() . '_minOk'];
+
+					//Creating a param in the database
+					$sqlRequest = 
+						"INSERT INTO `param`(`minVal`, `maxVal`, `minValOk`, `maxValOk`) 
+						VALUES (':min', ':max', ':minOk', ':maxOk')";
+
+					$stmt = $dbo->prepare($sqlRequest);;
+					$stmt->bindParam(":min", $minVal);
+					$stmt->bindParam(":max", $maxVal);
+					$stmt->bindParam(":minOk", $minValOk);
+					$stmt->bindParam(":minOk", $maxValOk);
+
+					$stmt->execute();
+
+					//Selecting the newly created ID
+					$sqlRequest = 
+						"SELECT MAX(`ID`) as maxID
+						FROM `param`
+						WHERE 1";
+					$stmt = $dbo->prepare($sqlRequest);
+					$stmt->execute();
+
+					$createdParams[$paramData->getDbName()] = $stmt->fetch()["maxID"];
+				}
+
+				//Creating the exercise using the values
+				$exerciseRequest = 
+					"INSERT INTO `exercise`(`Name`, `startDate`, `endDate`";
+
+				//Adding the parameters
+				foreach($parameters as $paramData)
+				{
+					$exerciseRequest .= ", " . $paramData->getDbName();
+				} 
+				$exerciseRequest .= ")" .
+					"VALUES (:name, :startDate, :endDate";
+				
+				//Adding SQL params
+				foreach($parameters as $paramData)
+				{
+					$exerciseRequest .= ", :" . $paramData->getDbName();
+				}
+				$exerciseRequest .= ");";
+
+				echo ($exerciseRequest);
+
+				$stmt = $dbo->prepare($exerciseRequest);
+				//Binding all the parameters
+				$stmt->bindParam(":name", $_POST["name"]);
+				$stmt->bindParam(":startDate", $startTime);
+				$stmt->bindParam(":endDate", $endTime);
+
+				foreach($parameters as $paramData)
+				{
+					$stmt->bindParam(":" . $paramData->getDbName(), $createdParams[$paramData->getDbName()]);
+				}
 
 				$stmt->execute();
 
-				//Selecting the newly created ID
-				$sqlRequest = 
-					"SELECT MAX(`ID`) as maxID
-					FROM `param`
+				//Selecting the ID of the created exercise and linking that to the course
+				$sqlRequest = "SELECT MAX(ID) AS maxID
+					FROM `exercise`
 					WHERE 1";
-				$stmt = $dbo->prepare($sqlRequest);
-				$stmt->execute();
 
-				$createdParams[$paramData->getDbName()] = $stmt->fetch()["maxID"];
+				$stmt = $dbo->prepare($sqlRequest);
+
+				$stmt->execute();
+				$result = $stmt->fetch();
+
+				//Creating a link
+				$sqlRequest = "INSERT INTO `exercisecourse`(`courseID`, `exerciseID`) VALUES (:courseID,:exerciseID)";
+				$stmt = $dbo->prepare($sqlRequest);
+				$stmt->bindParam(":courseID", $_POST["courseID"]);
+				$stmt->bindparam(":exerciseID", $result["maxID"]);
+				$stmt->execute();
 			}
 		}
 		else
 		{
 			echo("<p class='error'>You ned to be an admin to do that</p>");
 		}
+	}
+
+	function handleGetCoursesRaw()
+	{
+		
 	}
 ?>

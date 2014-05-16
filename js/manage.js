@@ -5,6 +5,9 @@ function setupManage()
 
 	addMemberButton.onclick = sendAddMembers;
 	b_addExercise.onclick = sendAddExercise;
+
+	datePicker = new datepickr('i_startDate');
+	datePicker2 = new datepickr('i_endDate');
 }
 
 function manageAddUsers(response)
@@ -46,21 +49,6 @@ function sendAddMembers()
 
 function sendAddExercise()
 {
-	var form = document.getElementById("exerciseForm");
-
-	var request = "action=addNewExercise&";
-
-	for(var i = 0; i < form.childNodes.length; i++)
-	{
-		if(form.childNodes[i].tagName == "INPUT")
-		{
-			//Creating a request from the forms
-			request = request + form.childNodes[i].name + "=" + form.childNodes[i].value +
-				"&";
-
-		}
-	}
-
-	//Sending the request
-	createRequest("requests.php", request, manageAddUsers);
+	var courseID = document.getElementById("courseID").value;
+	sendFormJs("exerciseForm", "&courseID=" + courseID);
 }
