@@ -104,7 +104,7 @@
 				$errorMsg .= "<p>Username already exists</p>";
 			}
 
-			header("location:index.php");
+			//header("location:index.php");
 			exit();
 		}
 		if($_POST["action"] == "Login")
@@ -128,7 +128,8 @@
 
 					echo("logged in sucessfully");
 
-					header("location:index.php");
+					//print_r($_SESSION);
+
 					exit();
 				}
 				else
@@ -141,7 +142,7 @@
 				$errorMsg .= "ERROR:Username or password is wrong";
 			}
 
-			header("location:index.php");
+			//header("location:index.php");
 			exit();
 		}
 		if($_POST["action"] == "addScore") //Adding a score
@@ -317,6 +318,12 @@
 		{
 			handleAddNewExercise();
 		} 
+
+		if($_POST["action"] == "getRawCourses")
+		{
+
+			handleGetRawCourses();
+		}
 	}
 
 	echo $errorMsg;
@@ -538,9 +545,42 @@
 			echo("<p class='error'>You ned to be an admin to do that</p>");
 		}
 	}
-
-	function handleGetCoursesRaw()
+	function handleGetRawCourses()
 	{
-		
+		//Selecting all the courses that the user is part of from the database
+		$sqlRequest = 
+			"SELECT course.ID, course.name, course.startDate, course.endDate 
+			FROM `course`, coursemember 
+			WHERE coursemember.courseID = course.ID AND coursemember.userID=:userID";
+
+		$dbo = getDbh();
+
+		$stmt = $dbo->prepare($sqlRequest);
+		$stmt->bindParam(":userID", $_SESSION["userID"]);
+		$stmt->execute();
+
+		$courses = $stmt->fetchAll();
+
+		//Creating a response
+		$responseString = "";
+
+		$resultArray = array();
+
+		foreach($courses as $course)
+		{
+			$courseString = "ID=" . $course["ID"];
+			$courseString .= ",name=" . $course["name"];
+			$courseString .= ",startDate=" . $course["startDate"];
+			$courseString .= ",endDate=" . $course["endDate"];
+
+			$resultArray[] = $courseString;
+		}
+
+		$responseString = implode(";", $resultArray);
+
+		print_r($_SESSION["userID"]);
+		print_r($_SESSION);
+
+		echo($responseString);
 	}
 ?>
