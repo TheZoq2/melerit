@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.4
+-- version 4.1.12
 -- http://www.phpmyadmin.net
 --
--- Värd: localhost
--- Skapad: 06 maj 2014 kl 14:40
--- Serverversion: 5.6.12-log
--- PHP-version: 5.4.12
+-- Host: localhost
+-- Generation Time: May 26, 2014 at 03:31 
+-- Server version: 5.6.16
+-- PHP Version: 5.5.11
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,15 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Databas: `melerit2`
+-- Database: `melerit2`
 --
-CREATE DATABASE IF NOT EXISTS `melerit2` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `melerit2`;
 
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `course`
+-- Table structure for table `course`
 --
 
 CREATE TABLE IF NOT EXISTS `course` (
@@ -37,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `course` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=22 ;
 
 --
--- Dumpning av Data i tabell `course`
+-- Dumping data for table `course`
 --
 
 INSERT INTO `course` (`ID`, `name`, `startDate`, `endDate`) VALUES
@@ -50,7 +48,7 @@ INSERT INTO `course` (`ID`, `name`, `startDate`, `endDate`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `coursemember`
+-- Table structure for table `coursemember`
 --
 
 CREATE TABLE IF NOT EXISTS `coursemember` (
@@ -58,10 +56,10 @@ CREATE TABLE IF NOT EXISTS `coursemember` (
   `userID` int(10) unsigned NOT NULL,
   `courseID` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
 --
--- Dumpning av Data i tabell `coursemember`
+-- Dumping data for table `coursemember`
 --
 
 INSERT INTO `coursemember` (`ID`, `userID`, `courseID`) VALUES
@@ -69,28 +67,44 @@ INSERT INTO `coursemember` (`ID`, `userID`, `courseID`) VALUES
 (2, 2, 18),
 (3, 2, 19),
 (4, 2, 20),
-(5, 3, 21);
+(5, 3, 21),
+(6, 1, 17),
+(7, 1, 18);
 
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `exercise`
+-- Table structure for table `exercise`
 --
 
 CREATE TABLE IF NOT EXISTS `exercise` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `Name` varchar(256) NOT NULL,
-  `paramID1` int(10) unsigned NOT NULL,
-  `paramID2` int(10) unsigned NOT NULL,
-  `paramID3` int(10) unsigned NOT NULL,
-  `paramID4` int(10) unsigned NOT NULL,
+  `startDate` int(10) unsigned NOT NULL,
+  `endDate` int(10) unsigned NOT NULL,
+  `param1` int(10) unsigned NOT NULL,
+  `param2` int(10) unsigned NOT NULL,
+  `param3` int(10) unsigned NOT NULL,
+  `param4` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+
+--
+-- Dumping data for table `exercise`
+--
+
+INSERT INTO `exercise` (`ID`, `Name`, `startDate`, `endDate`, `param1`, `param2`, `param3`, `param4`) VALUES
+(1, 'Test exercise', 1400191200, 1400709600, 41, 42, 43, 44),
+(2, 'Test exercise', 1400191200, 1400709600, 45, 46, 47, 48),
+(3, 'Test exercise', 1400191200, 1400709600, 49, 50, 51, 52),
+(4, 'Test exercise', 1400191200, 1400709600, 53, 54, 55, 56),
+(5, 'Test exercise', 1400191200, 1400709600, 57, 58, 59, 60),
+(6, 'Everyone gets F', 1401314400, 1399932000, 61, 62, 63, 64);
 
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `exercisecourse`
+-- Table structure for table `exercisecourse`
 --
 
 CREATE TABLE IF NOT EXISTS `exercisecourse` (
@@ -98,12 +112,20 @@ CREATE TABLE IF NOT EXISTS `exercisecourse` (
   `courseID` int(10) unsigned NOT NULL,
   `exerciseID` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+
+--
+-- Dumping data for table `exercisecourse`
+--
+
+INSERT INTO `exercisecourse` (`ID`, `courseID`, `exerciseID`) VALUES
+(1, 17, 5),
+(2, 17, 6);
 
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `param`
+-- Table structure for table `param`
 --
 
 CREATE TABLE IF NOT EXISTS `param` (
@@ -113,12 +135,42 @@ CREATE TABLE IF NOT EXISTS `param` (
   `minValOk` float NOT NULL,
   `maxValOk` float NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=65 ;
+
+--
+-- Dumping data for table `param`
+--
+
+INSERT INTO `param` (`ID`, `minVal`, `maxVal`, `minValOk`, `maxValOk`) VALUES
+(41, 0, 0, 0, 0),
+(42, 0, 0, 0, 0),
+(43, 0, 0, 0, 0),
+(44, 0, 0, 0, 0),
+(45, 0, 0, 0, 0),
+(46, 0, 0, 0, 0),
+(47, 0, 0, 0, 0),
+(48, 0, 0, 0, 0),
+(49, 0, 0, 0, 0),
+(50, 0, 0, 0, 0),
+(51, 0, 0, 0, 0),
+(52, 0, 0, 0, 0),
+(53, 0, 0, 0, 0),
+(54, 0, 0, 0, 0),
+(55, 0, 0, 0, 0),
+(56, 0, 0, 0, 0),
+(57, 0, 0, 0, 0),
+(58, 0, 0, 0, 0),
+(59, 0, 0, 0, 0),
+(60, 0, 0, 0, 0),
+(61, 0, 0, 0, 0),
+(62, 0, 0, 0, 0),
+(63, 0, 0, 0, 0),
+(64, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `result`
+-- Table structure for table `result`
 --
 
 CREATE TABLE IF NOT EXISTS `result` (
@@ -136,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `result` (
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `usercourse`
+-- Table structure for table `usercourse`
 --
 
 CREATE TABLE IF NOT EXISTS `usercourse` (
@@ -149,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `usercourse` (
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
@@ -161,7 +213,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
 
 --
--- Dumpning av Data i tabell `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`ID`, `name`, `password`, `role`) VALUES
