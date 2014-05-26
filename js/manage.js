@@ -50,5 +50,5 @@ function sendAddMembers()
 function sendAddExercise()
 {
 	var courseID = document.getElementById("courseID").value;
-	sendFormJs("exerciseForm", "&courseID=" + courseID);
+	sendFormJs("exerciseForm", "&action=addNewExercise&courseID=" + courseID, manageAddUsers);
 }

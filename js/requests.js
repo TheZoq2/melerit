@@ -1,4 +1,4 @@
-var requests = Array();
+//var requests = Array();
 
 function createRequest(phpFile, postVars, onFinished)
 {
@@ -17,12 +17,12 @@ function createRequest(phpFile, postVars, onFinished)
 	}
 
 	//Saving the request
-	requests[requests.length] = 
+	/*requests[requests.length] = 
 	{
 		request: request,
 
 		onFinished: onFinished
-	};
+	};*/
 }
 
 function checkRequests()
