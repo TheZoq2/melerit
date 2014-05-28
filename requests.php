@@ -240,6 +240,7 @@
 
 	function handleGetUserScore()
 	{
+		/*
 		$resultArray = array(); //The array that will be returned when everything is doen
 		$sqlRequest = "SELECT * FROM `result`
 			 WHERE userID=:userID";
@@ -258,6 +259,7 @@
 		foreach($results as $result)
 		{
 			//Selecting the exercise
+			
 			$sqlRequest = "SELECT * FROM `exercise` WHERE `ID`=:exID";
 
 			$stmt = $dbo->prepare($sqlRequest);
@@ -302,6 +304,97 @@
 		{
 			echo $resultDisp[$i]->getTable();
 		}
+		*/
+		global $parameters; //Defined in data.php
+		global $htmlData;
+
+		$userID = $_SESSION["userID"];
+		$exerciseID = $_POST["exerciseID"];
+
+		$dbo = getDbh();
+
+		//Selecting all the results that the user has submitted for the exercise that the user
+		$resultRequest = 
+			"SELECT result.param1, result.param2, result.param3, result.param4
+			FROM result, users 
+			WHERE (users.ID=:userID) AND (result.exerciseID=:exerciseID)";
+
+		$resultStmt = $dbo->prepare($resultRequest);
+
+		$resultStmt->bindParam(":userID", $userID);
+		$resultStmt->bindParam(":exerciseID", $exerciseID);
+
+		$resultStmt->execute();
+		$results = $resultStmt->fetchAll();
+
+		$paramList = array();
+
+		//Fetching all the parameters in the exercise
+		foreach($parameters as $param)
+		{
+			$paramRequest = 
+				"SELECT param.minVal, param.maxVal, param.minValOk, param.maxValOk 
+				FROM `exercise`, param
+				WHERE (exercise." . $param->getDbName() . "=param.ID) AND (exercise.ID=:exerciseID)";
+
+			$paramStmt = $dbo->prepare($paramRequest);
+
+			$paramStmt->bindParam(":exerciseID", $exerciseID);
+
+			$paramStmt->execute();
+
+			$paramList[$param->getDbName()] = $paramStmt->fetch(); 
+		}
+
+		$resultString = "";
+		//Going through all the results
+		foreach($results as $result)
+		{
+			$resultString .= "<tr>";
+
+			foreach($parameters as $param)
+			{
+				$passed = false;
+				$ok = false;
+
+				$resultValue = $result[$param->getDbName()];
+
+				//Checking if the result is passed
+				if($resultValue >= $paramList[$param->getDbName()]["minVal"] &&
+					$resultValue <= $paramList[$param->getDbName()]["maxVal"])
+				{
+					$passed = true;
+				}
+				//Checking if the value is "ok"
+				elseif($resultValue >= $paramList[$param->getDbName()]["minValOk"] &&
+					$resultValue <= $paramList[$param->getDbName()]["maxValOk"])
+				{
+					$ok = true;
+				}
+
+				//adding the cell
+				$resultString .= "<td class='";
+
+				if($passed == true)
+				{
+					$resultString .= $htmlData->getPassedClass();
+				}
+				elseif($ok == true)
+				{
+					$resultString .= $htmlData->getOkClass();
+				}
+				else
+				{
+					$resultString .= $htmlData->getFailedClass();
+				}
+
+				$resultString .= "'>" . $result[$param->getDbName()] . "</td>";
+			}
+
+			$resultString .= "</tr>";
+		}
+
+		echo($resultString);
 	}
 
 	function handleAddCourse()
@@ -416,7 +509,7 @@
 			if($_SESSION["userRole"] == 1) //If the user is an admin
 			{
 				//Add manage button
-				"<td><a href='manage.php?id=" . $course["courseID"] . "&action=editCourse'>add</a>"; 
+				$table .= "<td><a href='manage.php?id=" . $course["courseID"] . "&action=editCourse'>add</a>"; 
 			}
 			else
 			{
@@ -493,21 +586,23 @@
 					$maxValOk = 0;
 
 					//Getting the values from the post request
-					$minVal = $_POST[$paramData->getDbName() . '_min'];
-					$maxVal = $_POST[$paramData->getDbName() . '_max'];
-					$minValOk = $_POST[$paramData->getDbName() . '_maxOk'];
-					$maxValOk = $_POST[$paramData->getDbName() . '_minOk'];
+					$minVal = (int) $_POST[$paramData->getDbName() . '_min'];
+					$maxVal = (int) $_POST[$paramData->getDbName() . '_max'];
+					$minValOk = (int) $_POST[$paramData->getDbName() . '_maxOk'];
+					$maxValOk = (int) $_POST[$paramData->getDbName() . '_minOk'];
+
+					print_r($minVal);
 
 					//Creating a param in the database
 					$sqlRequest = 
 						"INSERT INTO `param`(`minVal`, `maxVal`, `minValOk`, `maxValOk`) 
-						VALUES (':min', ':max', ':minOk', ':maxOk')";
+						VALUES (:min, :max, :minOk, :maxOk)";
 
 					$stmt = $dbo->prepare($sqlRequest);;
 					$stmt->bindParam(":min", $minVal);
 					$stmt->bindParam(":max", $maxVal);
 					$stmt->bindParam(":minOk", $minValOk);
-					$stmt->bindParam(":minOk", $maxValOk);
+					$stmt->bindParam(":maxOk", $maxValOk);
 
 					$stmt->execute();
 
@@ -541,7 +636,7 @@
 				}
 				$exerciseRequest .= ");";
 
-				echo ($exerciseRequest);
+				//echo ($exerciseRequest);
 
 				$stmt = $dbo->prepare($exerciseRequest);
 				//Binding all the parameters

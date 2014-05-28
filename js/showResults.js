@@ -1,6 +1,6 @@
-function getResults()
+function getResults(exerciseID)
 {
-	createRequest("requests.php", "action=getUserScore", function(result){
+	createRequest("requests.php", "action=getUserScore&exerciseID=" + exerciseID, function(result){
 		addResultsToTable("resultTable", result);
 
 		console.log(result);

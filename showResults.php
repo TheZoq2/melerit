@@ -7,6 +7,26 @@
 	{
 		header("location:login.php");
 	}
+
+	//Dropdown menu for showing courses 
+
+	$dbo = getDbh();
+
+	//Getting all the courses that the user is part of
+	$courseRequest = 
+		"SELECT course.ID, course.name, users.ID as userID
+		FROM coursemember, users, course
+		WHERE users.ID=:userID AND course.ID=coursemember.courseID AND users.ID=coursemember.userID";
+
+	$courseStmt = $dbo->getDbh();
+
+	$courseStmt->bindParam(":userID", $_SESSION["userID"]);
+	$courseStmt->execute();
+	$courseResult = $courseStmt->fetchAll();
+
+	//Creating the drodown table
+
+	$dropdown = "<select>";
 ?>
 
 <html>
@@ -30,12 +50,9 @@
 			</table>
 		</div>
 
-		<div id="canvasContainer">
-			<canvas id="c_graph1" width="150" height="200"></canvas>
-		</div>
 
 		<script>
-			getResults();
+			getResults(12);
 
 			setupGraph("c_graph1");
 		</script>
