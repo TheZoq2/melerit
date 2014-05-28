@@ -411,9 +411,18 @@
 			"<tr>" .
 				"<td>" . $course["name"] . "</td>" .
 				"<td>" . $startDate . "</td>" .
-				"<td>" . $endDate . "</td>" .
+				"<td>" . $endDate . "</td>";
+
+			if($_SESSION["userRole"] == 1) //If the user is an admin
+			{
+				//Add manage button
 				"<td><a href='manage.php?id=" . $course["courseID"] . "&action=editCourse'>add</a>"; 
-			"</tr>";
+			}
+			else
+			{
+
+			}
+			$table .= "</tr>";
 		}
 
 		$table .= "</table>";
@@ -663,39 +672,45 @@
 	function handleResultSubmit()
 	{
 		global $parameters; //Defined in data.php
-
-		$sqlRequest = "INSERT INTO `result`(`exerciseID`, `date`, userID";
-
-		//Adding all the parameters to the request
-		foreach($parameters as $param)
+		if(isset($_SESSION["userID"]))
 		{
-			$sqlRequest .= ", " . $param->getDbName();
+			$sqlRequest = "INSERT INTO `result`(`exerciseID`, `date`, userID";
+
+			//Adding all the parameters to the request
+			foreach($parameters as $param)
+			{
+				$sqlRequest .= ", " . $param->getDbName();
+			}
+
+			$sqlRequest .= ")VALUES (:exerciseID, CURDATE(), :userID";
+
+			foreach($parameters as $param)
+			{
+				$sqlRequest .= ", :" . $param->getDbName();
+			}
+
+			$sqlRequest .=")"; //finishing the request
+
+			//Connecting to the DB
+			$dbo = getDbh();
+
+			$stmt = $dbo->prepare($sqlRequest);
+
+			$stmt->bindParam(":userID", $_SESSION["userID"]);
+			$stmt->bindParam(":exerciseID", $_POST["exerciseID"]);
+
+			//Adding the parameters
+			foreach($parameters as $param)
+			{
+				$stmt->bindParam(":" . $param->getDbName(), $_POST[$param->getDbName()]);
+			}
+
+			//Execute the request
+			$stmt->execute();
 		}
-
-		$sqlRequest .= ")VALUES (:exerciseID, CURDATE(), :userID";
-
-		foreach($parameters as $param)
+		else
 		{
-			$sqlRequest .= ", :" . $param->getDbName();
+			echo("error: User is not logged in");
 		}
-
-		$sqlRequest .=")"; //finishing the request
-
-		//Connecting to the DB
-		$dbo = getDbh();
-
-		$stmt = $dbo->prepare($sqlRequest);
-
-		$stmt->bindParam(":userID", $_SESSION["userID"]);
-		$stmt->bindParam(":exerciseID", $_POST["exerciseID"]);
-
-		//Adding the parameters
-		foreach($parameters as $param)
-		{
-			$stmt->bindParam(":" . $param->getDbName(), $_POST[$param->getDbName()]);
-		}
-
-		//Execute the request
-		$stmt->execute();
 	}
 ?>

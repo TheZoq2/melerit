@@ -56,11 +56,6 @@
 	?>
 	<script>
 		setupCourses();
-
-		createRequest("requests.php", "action=getRawCourses", function(response)
-		{
-			console.log(response);
-		});
 	</script>
 </body>
 </html>
