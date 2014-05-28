@@ -144,6 +144,7 @@ function showExercises()
 
 			exerciseForm.appendChild(createLabel(paramName));
 			exerciseForm.appendChild(createInput(dbName, "text", "0"));
+			exerciseForm.appendChild(createInput("action", "hidden", "submitResult"));
 		}
 	}
 	else
