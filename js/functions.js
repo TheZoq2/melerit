@@ -49,10 +49,21 @@ function sendFormJsByForm(form, additionalVars, onFinished)
 	{
 		if(foundNodes[i].tagName == "INPUT")
 		{
-			console.log("agwg");
-			//Creating a request from the forms
-			request = request + foundNodes[i].name + "=" + foundNodes[i].value +
-				"&";
+			if(foundNodes[i].type == "radio")
+			{
+				if(foundNodes[i].checked == true)
+				{
+					//Creating a request from the forms
+					request = request + foundNodes[i].name + "=" + foundNodes[i].value +
+					"&";
+				}
+			}
+			else
+			{
+				//Creating a request from the forms
+				request = request + foundNodes[i].name + "=" + foundNodes[i].value +
+					"&";
+			}
 		}
 	}
 
@@ -93,7 +104,7 @@ function Data()
 			}
 		}
 
-		console.log("No variable named " + variable);
+		console.log("No variable named " + name);
 
 		return undefined;
 	}

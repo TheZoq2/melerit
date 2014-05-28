@@ -48,3 +48,12 @@ function createInputWithLabel(labelText, ID, type, name, value)
 	
 	return div;
 }
+
+function createElement(type, innerHTML)
+{
+	var element = document.createElement(type);
+
+	element.innerHTML = innerHTML;
+
+	return element;
+}

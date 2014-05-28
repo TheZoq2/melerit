@@ -127,6 +127,10 @@
 		{
 			handleGetExercisesInCoruse();
 		}
+		if($_POST["action"] == "getParams")
+		{
+			handleParamRequest();
+		}
 	}
 
 	echo $errorMsg;
@@ -603,8 +607,52 @@
 
 		//Selecting all the exercises in the course
 		
-		"SELECT exercisecourse.`exerciseID`, exercise.name, exercise.startDate, exercise.endDate 
-FROM `exercisecourse`, exercise 
-WHERE courseID=17 AND exercise.ID=exerciseCourse.exerciseID"
+		$sqlRequest = "SELECT exercisecourse.`exerciseID` AS ID, exercise.name, exercise.startDate, exercise.endDate 
+			FROM `exercisecourse`, exercise 
+			WHERE (courseID=:courseID) AND (exercise.ID = exercisecourse.exerciseID)";
+
+		$dbo = getDbh();
+
+		$stmt = $dbo->prepare($sqlRequest);
+
+		$stmt->bindParam(":courseID", $_POST["courseID"]);
+
+		$stmt->execute();
+
+		$exercises = $stmt->fetchAll();
+
+		//Returning the exercises.
+		$resultArray = array();
+
+		foreach($exercises as $exercise)
+		{
+			$exerciseString = "ID=" . $exercise["ID"];
+			$exerciseString .= ",name=" . $exercise["name"];
+			$exerciseString .= ",startDate=" . $exercise["startDate"];
+			$exerciseString .= ",endDate=" . $exercise["endDate"];
+			
+			$resultArray[] = $exerciseString;
+		}
+
+		$responseString = implode(";", $resultArray);
+
+		echo($responseString);
+	}
+
+	function handleParamRequest()
+	{
+		global $parameters; //Defined in data.php
+
+		//Returning a list of all the parameters
+		$resultArray = array();
+		foreach($parameters as $param)
+		{
+			$resultArray[] = "name=" . $param->getName() .
+				",dbName=" . $param->getDbName();
+		}
+
+		$resultString = implode(";", $resultArray);
+
+		echo($resultString);
 	}
 ?>
