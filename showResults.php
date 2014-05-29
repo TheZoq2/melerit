@@ -18,15 +18,19 @@
 		FROM coursemember, users, course
 		WHERE users.ID=:userID AND course.ID=coursemember.courseID AND users.ID=coursemember.userID";
 
-	$courseStmt = $dbo->getDbh();
+	$courseStmt = $dbo->prepare($courseRequest);
 
 	$courseStmt->bindParam(":userID", $_SESSION["userID"]);
 	$courseStmt->execute();
 	$courseResult = $courseStmt->fetchAll();
 
 	//Creating the drodown table
-
 	$dropdown = "<select>";
+	foreach($courseResult as $course)
+	{
+		$dropdown .= "<option value=" . $course["ID"] . ">" . $course["name"] . "</option>";
+	}
+	$dropdown .= "</select>";
 ?>
 
 <html>
@@ -43,6 +47,11 @@
 <body>
 	<div id="wrapper">
 		<h1>Results</h1>
+
+		<p>Course</p>
+		<?php
+			echo($dropdown);
+		?>
 
 		<div id="resultDiv">
 			<table id="resultTable">
