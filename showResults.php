@@ -25,12 +25,20 @@
 	$courseResult = $courseStmt->fetchAll();
 
 	//Creating the drodown table
-	$dropdown = "<select>";
+	$dropdown = "<select id='courseDropdown'>";
 	foreach($courseResult as $course)
 	{
-		$dropdown .= "<option value=" . $course["ID"] . ">" . $course["name"] . "</option>";
+		$dropdown .= 
+			"<option value='" . $course["ID"] . "'>" . 
+				$course["name"] .
+			"</option>";
 	}
 	$dropdown .= "</select>";
+
+	$dropdown .= 
+		"<p>Exercise</p>" .
+		"<select id='exerciseDropdown'>" .
+		"</select>"
 ?>
 
 <html>
@@ -61,9 +69,10 @@
 
 
 		<script>
-			getResults(12);
+			setupResults();
+			//getResults(12);
 
-			setupGraph("c_graph1");
+			//setupGraph("c_graph1");
 		</script>
 	</div>
 </body>

@@ -15,7 +15,14 @@
 
 	//Displaying all the courses that the user is part of
 	$courseArea .= 
-	"<h1>Courses</h1>" .
+	"<h1>Courses</h1>";
+
+	if($_SESSION["userRole"] == 0)
+	{
+		$courseArea .= "<a href='showResults.php'>Look at your results</a>";
+	}
+
+	$courseArea .=
 	"<h3>Current courses</h3>" .
 	"<table id='courseArea'>" .
 	"</table>";

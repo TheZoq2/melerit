@@ -79,7 +79,6 @@
 		}
 		if($_POST["action"] == "Login")
 		{
-			echo("logging in");
 			handleLogin();
 		}
 		if($_POST["action"] == "addScore") //Adding a score
@@ -135,6 +134,10 @@
 		{
 			handleResultSubmit();
 		}
+		if($_POST["action"] == "getExerciseDropdown")
+		{
+			hanadleExerciseDropdown();
+		}
 	}
 
 	echo $errorMsg;
@@ -153,7 +156,7 @@
 
 		if(count($result) == 0)
 		{
-			$hashedPass = password_hash($_POST["password"]);
+			$hashedPass = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
 			$sqlRequest = "INSERT INTO `users`(`name`, `password`) VALUES (:name, :password)";
 
@@ -347,6 +350,17 @@
 		}
 
 		$resultString = "";
+
+		//Adding a row with all the parameters
+		$resultString .= "<tr>";
+
+		foreach($parameters as $param)
+		{
+			$resultString .= "<td>" . $param->getName() . "</td>";
+		}
+
+		$resultString .= "</tr>";
+
 		//Going through all the results
 		foreach($results as $result)
 		{
@@ -382,6 +396,8 @@
 				elseif($ok == true)
 				{
 					$resultString .= $htmlData->getOkClass();
+
+
 				}
 				else
 				{
@@ -586,12 +602,10 @@
 					$maxValOk = 0;
 
 					//Getting the values from the post request
-					$minVal = (int) $_POST[$paramData->getDbName() . '_min'];
-					$maxVal = (int) $_POST[$paramData->getDbName() . '_max'];
-					$minValOk = (int) $_POST[$paramData->getDbName() . '_maxOk'];
-					$maxValOk = (int) $_POST[$paramData->getDbName() . '_minOk'];
-
-					print_r($minVal);
+					$minVal = (float) $_POST[$paramData->getDbName() . '_min'];
+					$maxVal = (float) $_POST[$paramData->getDbName() . '_max'];
+					$minValOk = (float) $_POST[$paramData->getDbName() . '_minOk'];
+					$maxValOk = (float) $_POST[$paramData->getDbName() . '_maxOk'];
 
 					//Creating a param in the database
 					$sqlRequest = 
@@ -807,5 +821,33 @@
 		{
 			echo("error: User is not logged in");
 		}
+	}
+	function hanadleExerciseDropdown()
+	{
+		//Connecting to the database
+		$dbo = getDbh();
+
+		$sqlRequest = 
+			"SELECT exercise.ID, exercise.name
+			FROM exercisecourse, exercise
+			WHERE (exercisecourse.courseID=:courseID) AND (exercise.ID=exercisecourse.exerciseID)";
+
+		$stmt = $dbo->prepare($sqlRequest);
+		$stmt->bindParam(":courseID", $_POST["courseID"]);
+		$stmt->execute();
+
+		$exercises = $stmt->fetchAll();
+
+		$resultStr = "";
+		//Creating the dropdown content
+		foreach($exercises as $exercise)
+		{
+			$resultStr .= 
+				"<option value='" . $exercise["ID"] . "'>" .
+					$exercise["name"] .
+				"</option>";
+		}
+
+		echo($resultStr);
 	}
 ?>
